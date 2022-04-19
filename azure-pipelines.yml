@@ -70,14 +70,14 @@ jobs:
       tools/mkimage -n rk3399 -T $(img1type) -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin $(img1name)
 
       # Copy built-in env object and extract env data
-      cp env/built-in.o built_in_env.o
-      aarch64-linux-gnu-objcopy -O binary -j ".rodata.default_environment" built_in_env.o
+      cp env/common.o common.o
+      aarch64-linux-gnu-objcopy --dump-section .rodata.default_environment=copy_common.o common.o
 
       # Replace null terminator in built-in env with newlines
-      tr '\0' '\n' < built_in_env.o | sed '/^$/d' > built_in_env.txt
+      tr '\0' '\n' < copy_common.o | sed '/^$/d' > common.txt
 
       # Make built-in env image with correct CRC
-      tools/mkenvimage -s 0x8000 -o $(envname) built_in_env.txt
+      tools/mkenvimage -s 0x8000 -o $(envname) common.txt
 
       # Copy built artifacts to artifact staging directory
       cp $(img1name) '$(Build.ArtifactStagingDirectory)'
